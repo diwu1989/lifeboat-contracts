@@ -9,6 +9,7 @@ module.exports = function (deployer) {
   const depot = "0x436bC8C741b55864B40A0D3B6f2B6eCB5771B5AA";
   const oracleBase = "CUSD";
   const oracleQuote = "USD";
+  // deployed to 0x0D2dB8611C7730B7e0423b1F6b0C817D200d9d08
   deployer.deploy(Lifeboat,
     swappa,
     oracle,

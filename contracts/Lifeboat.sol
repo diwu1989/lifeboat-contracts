@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
+import "./IERC20.sol";
 import "./IStdReference.sol";
 import "./ISwappaRouterV1.sol";
-import "./IERC20.sol";
 import "./SafeDecimalMath.sol";
 import "./SafeMath.sol";
 
@@ -42,14 +42,25 @@ contract Lifeboat {
         uint256 minimumPrice;
     }
 
-    struct SwapArgs {
+    event StateChanged(
+        address indexed user,
+        uint256 remaining,
+        uint256 depegThreshold,
+        uint256 minimumPrice
+    );
+
+    event Saved(
+        address indexed user,
+        uint256 inputAmount,
+        uint256 outputAmount
+    );
+
+    struct SwappaArgs {
         address[] path;
         address[] pairs;
         bytes[] extras;
         uint256 deadline;
     }
-
-    event StateChanged(address indexed user, State state);
 
     constructor(
         ISwappaRouterV1 _swappa,
@@ -85,7 +96,7 @@ contract Lifeboat {
 
     function unenroll() public {
         delete states[msg.sender];
-        emit StateChanged(msg.sender, states[msg.sender]);
+        logEvent(msg.sender);
     }
 
     function enroll(
@@ -116,7 +127,7 @@ contract Lifeboat {
 
         gasDepot.transfer(address(this).balance);
         states[msg.sender] = state;
-        emit StateChanged(msg.sender, state);
+        logEvent(msg.sender);
         return state;
     }
 
@@ -135,7 +146,7 @@ contract Lifeboat {
         return remaining;
     }
 
-    function swap(address user, SwapArgs calldata args)
+    function save(address user, SwappaArgs calldata args)
         public
         returns (uint256 outputAmount)
     {
@@ -174,6 +185,7 @@ contract Lifeboat {
             user,
             args.deadline
         );
+        emit Saved(user, inputAmount, outputAmount);
 
         // decrement the remaining and emit
         uint256 remaining = state.remaining.sub(inputAmount);
@@ -182,11 +194,20 @@ contract Lifeboat {
         } else {
             states[user].remaining = remaining;
         }
-        emit StateChanged(user, states[user]);
+        logEvent(user);
         return outputAmount;
     }
 
     function rescueERC20(IERC20 token) external returns (bool) {
         return token.transfer(gasDepot, token.balanceOf(address(this)));
+    }
+
+    function logEvent(address user) private {
+        emit StateChanged(
+            user,
+            states[user].remaining,
+            states[user].depegThreshold,
+            states[user].minimumPrice
+        );
     }
 }
