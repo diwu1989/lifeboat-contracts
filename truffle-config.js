@@ -22,6 +22,17 @@
 //
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
+const Kit = require('@celo/contractkit');
+const kit = Kit.newKit('https://forno.celo.org');
+const getAccount = require('./getAccount').getAccount;
+
+async function awaitWrapper() {
+  let account = await getAccount();
+  kit.connection.addAccount(account.privateKey);
+}
+
+awaitWrapper();
+
 
 module.exports = {
   /**
@@ -71,6 +82,12 @@ module.exports = {
     // network_id: 2111,   // This network is yours, in the cloud.
     // production: true    // Treats this network as if it was a public net. (default: false)
     // }
+    mainnet: {
+      gasPrice: 100000001,
+      gas: 4_000_000,
+      provider: kit.connection.web3.currentProvider, // CeloProvider
+      network_id: 42220
+    }
   },
 
   // Set default mocha options here, use special reporters etc.
@@ -88,7 +105,7 @@ module.exports = {
           enabled: true,
           runs: 2000
         }
-      //  evmVersion: "byzantium"
+        //  evmVersion: "byzantium"
       }
     }
   },
@@ -104,13 +121,13 @@ module.exports = {
   // $ truffle migrate --reset --compile-all
   //
   // db: {
-    // enabled: false,
-    // host: "127.0.0.1",
-    // adapter: {
-    //   name: "sqlite",
-    //   settings: {
-    //     directory: ".db"
-    //   }
-    // }
+  // enabled: false,
+  // host: "127.0.0.1",
+  // adapter: {
+  //   name: "sqlite",
+  //   settings: {
+  //     directory: ".db"
+  //   }
+  // }
   // }
 };

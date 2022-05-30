@@ -106,11 +106,11 @@ contract Lifeboat {
 
         require(msg.value > 0, "missing gas depot donation");
         require(
-            depegThreshold <= SafeDecimalMath.UNIT && depegThreshold > 0,
+            0 < depegThreshold && depegThreshold < SafeDecimalMath.UNIT,
             "invalid depeg threshold"
         );
         require(
-            minimumPrice <= SafeDecimalMath.UNIT && minimumPrice > 0,
+            0 < minimumPrice && minimumPrice < depegThreshold,
             "invalid minimum price"
         );
 

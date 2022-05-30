@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/diwu1989/lifeboat-contracts/issues"
   },
-  "homepage": "https://github.com/diwu1989/lifeboat-contracts#readme"
+  "homepage": "https://github.com/diwu1989/lifeboat-contracts#readme",
+  "dependencies": {
+    "@celo/contractkit": "^2.0.0"
+  }
 }
